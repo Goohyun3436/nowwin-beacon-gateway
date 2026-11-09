@@ -1,0 +1,108 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Beacon Scanner Lab</title><style>
+:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#0c1220;color:#e5edf9}body{max-width:1400px;margin:0 auto;padding:16px 24px}header{display:flex;justify-content:space-between;align-items:center}h1{font-size:16px;margin:0;line-height:1.3}.page-header{gap:12px}.page-heading{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.page-heading .muted,#network{font-size:11px}small,.muted{color:#9aabc4}b{color:#60e2be}.grid{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}.card{display:flex;align-items:center;gap:10px;font-size:12px;padding:7px 11px!important;border-radius:6px!important}.card,section{background:#151f30;border:1px solid #2a3850;border-radius:12px;padding:20px}.card strong{font-size:14px;font-variant-numeric:tabular-nums;color:#60e2be}section{margin-top:18px}h2{font-size:18px}table{width:100%;border-collapse:collapse;text-align:left}td,th{padding:13px 10px;border-bottom:1px solid #2a3850;font-size:14px}th{color:#9aabc4}code,pre{font-family:ui-monospace,monospace}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px}.status{display:flex;gap:14px;flex-wrap:wrap}.status span{background:#0c1220;padding:12px;border-radius:8px}.scroll{overflow:visible}table{table-layout:fixed}td,th{overflow-wrap:anywhere}pre{overflow:visible}.log-entry{border-top:1px solid #2a3850;padding:16px 0;overflow-anchor:none}.log-meta{font-size:12px;color:#9aabc4;margin-bottom:10px}.log-entry pre{margin:12px 0 0;padding:12px;background:#0c1220;border-radius:6px}.log-entry td,.log-entry th{padding:8px;font-size:12px}#new-logs{position:fixed;right:20px;top:16px;z-index:10;background:#18634f;box-shadow:0 4px 20px #0008}#new-logs[hidden]{display:none}#log-heading{scroll-margin-top:16px}button{background:#253854;color:white;border:1px solid #486185;border-radius:6px;padding:8px 14px;cursor:pointer}.warn{color:#f4c576}a{color:#60e2be}@media(max-width:750px){body{padding:15px}.grid{grid-template-columns:repeat(2,1fr)}header{display:block}}
+
+.topbar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:12px}.page-header{display:contents}.page-heading{flex-shrink:0}.topbar .grid{margin:0;gap:6px}.topbar #network{margin-left:auto;white-space:nowrap}.topbar .card{padding:5px 9px!important;gap:8px}.topbar h1{font-size:15px}.topbar #config{font-size:11px}.page-heading{gap:10px}
+@media(min-width:1000px){.topbar{flex-wrap:nowrap}.topbar .grid{flex-wrap:nowrap}}
+@media(max-width:750px){body{padding:12px}.topbar{gap:10px}.topbar .page-heading{width:100%;justify-content:space-between;gap:6px}.topbar #config{font-size:10px}.topbar .grid{display:flex;flex-wrap:wrap;gap:5px;flex:1}.topbar .card{font-size:10px;padding:5px 7px!important;gap:5px}.topbar .card strong{font-size:12px}.topbar #network{font-size:10px}section{padding:12px;margin-top:12px}h2{font-size:15px}#log-heading{display:flex;gap:8px;align-items:center}button{font-size:12px;padding:7px 9px}.log-meta{overflow-wrap:anywhere;font-size:11px}#new-logs{top:10px;right:10px;max-width:calc(100vw - 20px)}table thead{display:none}table,tbody{display:block;width:100%}tbody tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:10px 0;border-bottom:1px solid #2a3850}tbody td,.log-entry td{display:flex;flex-direction:column;gap:3px;border:0;padding:0;font-size:12px;min-width:0}td:before{content:attr(data-label);font-size:10px;color:#9aabc4}.log-entry{padding:12px 0}.log-entry pre{padding:9px;font-size:11px}}
+@media(max-width:400px){.topbar .page-heading{align-items:flex-start;flex-direction:column}.topbar #network{width:100%;margin-left:0}}
+.beacon-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.beacon-tools h2{margin:0}.beacon-tools label{font-size:12px;display:inline-flex;align-items:center;gap:6px}.beacon-tools .actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.beacon-tools{margin-bottom:14px}input[type=checkbox]{accent-color:#60e2be;width:17px;height:17px;cursor:pointer}.pick-cell{vertical-align:middle}.raw-caption{font-size:11px;color:#9aabc4;margin-top:10px}@media(max-width:750px){.beacon-tools{align-items:flex-start}.beacon-tools .actions{gap:8px}}
+
+@media(min-width:751px){.beacon-table th:nth-child(3){width:65px}.beacon-table th:nth-child(4){width:60px}.beacon-table th:nth-child(5){width:190px}.beacon-table th:nth-child(6){width:8ch}.beacon-table th:nth-child(7){width:40px}.beacon-table td:nth-child(5),.beacon-table td:nth-child(6){white-space:nowrap}.beacon-table td:nth-child(6),.beacon-table th:nth-child(6){padding-left:6px;padding-right:6px;font-variant-numeric:tabular-nums}}
+</style><div class="topbar"><header class="page-header"><div class="page-heading"><h1>Beacon Scanner Lab</h1><div class="muted" id="config">연결 중…</div></div></header>
+<div class="grid"><div class="card">TCP 연결<strong id="connections">0</strong></div><div class="card">수신 패킷<strong id="packets">0</strong></div><div class="card">파싱 오류<strong id="errors">0</strong></div><div class="card">필터 제외 샘플<strong id="filtered">0</strong></div></div><div id="network">● 대기</div></div>
+
+<section><div class="beacon-tools"><h2>비콘 목록 <small id="count"></small></h2><div class="actions"><label><input type="checkbox" id="selected-only">선택한 MAC만 보기 <span id="selection-count">0개</span></label><button type="button" id="clear-selection">선택 해제</button></div></div><div class="scroll"><table class="beacon-table"><thead><tr><th>MAC</th><th>스캐너</th><th>RSSI</th><th>샘플 수</th><th>마지막 수신</th><th>상태</th><th>선택</th></tr></thead><tbody id="rows"></tbody></table></div><p id="empty" class="muted">아직 관측값이 없습니다. 게이트웨이 TCP 목적지를 이 서버의 IP:7001로 설정하세요.</p></section>
+<section id="log-section"><header id="log-heading"><h2>실시간 수신 <small>200건</small></h2><button id="pause">화면 일시정지</button></header><div id="logs"></div></section>
+<button id="new-logs" hidden type="button">최신 로그 보기</button>
+<script>
+const $=id=>document.getElementById(id);
+let paused=false, manualPause=false, autoPause=false, latest=null, pending=null, frame=null, renderedSequence=0, displayed=null;
+const selectedMACs=new Set();
+try{const saved=JSON.parse(localStorage.getItem('beacon-selection')||'{}');for(const mac of Array.isArray(saved.macs)?saved.macs:[])if(typeof mac==='string')selectedMACs.add(mac);$('selected-only').checked=saved.only===true}catch(e){}
+function matchesMAC(mac){return !$('selected-only').checked||selectedMACs.has(mac)}
+function selectionChanged(){
+ try{localStorage.setItem('beacon-selection',JSON.stringify({macs:[...selectedMACs],only:$('selected-only').checked}))}catch(e){}
+ $('selection-count').textContent=selectedMACs.size+'개';
+ const state=paused?displayed:latest;if(state)render(state);
+}
+$('selection-count').textContent=selectedMACs.size+'개';
+$('selected-only').onchange=selectionChanged;
+$('clear-selection').onclick=()=>{selectedMACs.clear();$('selected-only').checked=false;selectionChanged()};
+function cell(row,text,label){const c=document.createElement('td');c.textContent=text;c.dataset.label=label||'';row.append(c);return c}
+function elapsed(lastSeen,now=Date.now()){
+ const stamp=Date.parse(lastSeen);if(!Number.isFinite(stamp))return '—';
+ const seconds=Math.max(0,Math.floor((now-stamp)/1000));
+ return [Math.floor(seconds/3600),Math.floor(seconds/60)%60,seconds%60].map(n=>String(n).padStart(2,'0')).join(':');
+}
+function updateBeaconCount(){const count=$('rows').children.length;$('count').textContent=count+'개';$('empty').hidden=count>0;$('empty').textContent=$('selected-only').checked?'선택한 MAC의 최근 30초 수신값이 없습니다.':'최근 30초 이내 수신된 비콘이 없습니다.'}
+function updateElapsed(){
+ if(paused||stopped)return;const now=Date.now();
+ for(const c of $('rows').querySelectorAll('[data-last-seen]')){
+  if(now-Date.parse(c.dataset.lastSeen)>=30000)c.parentElement.remove();
+  else c.textContent=elapsed(c.dataset.lastSeen,now);
+ }
+ updateBeaconCount();
+}
+function render(s){
+ displayed=s;
+ $('config').textContent=`TCP ${s.TCP} · ${s.Mode} · WebSocket 실시간`;
+ for(const [id,k] of Object.entries({connections:'Connections',packets:'Packets',errors:'Errors',filtered:'Filtered'}))$(id).textContent=s[k];
+ const values=Object.values(s.Beacons).filter(v=>Date.now()-Date.parse(v.LastSeen)<30000&&matchesMAC(v.MAC)).sort((a,b)=>a.Order-b.Order);
+ $('rows').replaceChildren();
+ for(const v of values){const row=document.createElement('tr');
+ [v.MAC,v.ScannerMAC,v.RSSI+' dBm',v.Count,new Date(v.LastSeen).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'})].forEach((x,i)=>cell(row,x,['MAC','스캐너','RSSI','샘플 수','마지막 수신'][i]));const status=cell(row,elapsed(v.LastSeen),'상태');status.dataset.lastSeen=v.LastSeen;status.title='마지막 수신 후 경과 시간';status.style.fontVariantNumeric='tabular-nums';
+ const pick=cell(row,'','선택');pick.className='pick-cell';const checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.checked=selectedMACs.has(v.MAC);checkbox.setAttribute('aria-label',v.MAC+' 선택');checkbox.onchange=()=>{if(checkbox.checked)selectedMACs.add(v.MAC);else selectedMACs.delete(v.MAC);selectionChanged()};pick.append(checkbox);$('rows').append(row)}
+ updateBeaconCount();
+ const entries=document.createDocumentFragment();
+ for(const e of s.Events.slice().reverse()){
+  if(e.Kind!=='packet')continue;
+  const readings=(e.Readings||[]).filter(r=>matchesMAC(r.BeaconMAC));
+  if($('selected-only').checked&&!readings.length)continue;
+  const entry=document.createElement('article');entry.className='log-entry';
+  const meta=document.createElement('div');meta.className='log-meta';meta.textContent=`${new Date(e.At).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',hour12:false})} · ${e.Format} · ${e.Remote}`;entry.append(meta);
+  const table=document.createElement('table');const head=document.createElement('thead');const heading=document.createElement('tr');
+  for(const title of ['스캐너 MAC','비콘 MAC','RSSI','처리 결과']){const th=document.createElement('th');th.textContent=title;heading.append(th)}head.append(heading);table.append(head);
+  const body=document.createElement('tbody');
+  for(const r of readings.length?readings:[null]){
+   const tr=document.createElement('tr');const allowed=r&&(r.BeaconMAC.startsWith('C3:00:00:')||r.BeaconMAC.startsWith('00:C0:B1:'));
+   [e.ScannerMAC||'—',r?.BeaconMAC||'—',r?r.RSSI+' dBm':'—',e.Error||(!r?'비콘 없음':allowed?'수신':'필터 제외')].forEach((x,i)=>cell(tr,x,['스캐너 MAC','비콘 MAC','RSSI','처리 결과'][i]));body.append(tr);
+  }
+  table.append(body);entry.append(table);
+  if($('selected-only').checked){const caption=document.createElement('div');caption.className='raw-caption';caption.textContent='원문 · 선택 외 비콘을 포함한 전체 패킷';entry.append(caption)}
+  const raw=document.createElement('pre');raw.textContent=e.RawHex||'원문 없음';entry.append(raw);entries.append(entry);
+ }
+ if(!entries.childNodes.length){const empty=document.createElement('p');empty.className='muted';empty.textContent=$('selected-only').checked?'선택한 MAC의 수신 패킷이 없습니다.':'수신 패킷을 기다리고 있습니다.';entries.append(empty)}
+ $('logs').replaceChildren(entries);renderedSequence=s.LogSequence||0;updateControls();
+
+}
+function queue(s){pending=s;if(frame===null)frame=requestAnimationFrame(()=>{frame=null;if(!paused&&pending){render(pending);pending=null}})}
+function updateControls(){
+ const count=Math.max(0,(latest?.LogSequence||0)-renderedSequence);
+ $('pause').textContent=paused?(autoPause&&!manualPause?'자동 일시정지 · 재개':'화면 재개'):'화면 일시정지';
+ $('new-logs').hidden=!paused;
+ $('new-logs').textContent=count?`${count}건`:'최신 로그로 이동 · 재개';
+}
+function setPaused(){paused=manualPause||autoPause;if(!paused&&latest)queue(latest);updateControls()}
+function resumeLatest(){
+ manualPause=false;autoPause=false;paused=false;pending=null;
+ if(frame!==null){cancelAnimationFrame(frame);frame=null}
+ if(latest)render(latest);
+ $('log-heading').scrollIntoView({block:'start',behavior:'instant'});updateControls();
+}
+$('pause').onclick=()=>{if(paused)resumeLatest();else{manualPause=true;setPaused()}};
+$('new-logs').onclick=resumeLatest;
+let scrollFrame=null;
+window.addEventListener('scroll',()=>{if(scrollFrame!==null)return;scrollFrame=requestAnimationFrame(()=>{scrollFrame=null;const below=$('log-heading').getBoundingClientRect().bottom<=0;if(below!==autoPause){autoPause=below;setPaused()}})},{passive:true});
+let retry=null, socket=null, stopped=false;
+function connect(){
+ socket=new WebSocket(`${location.protocol==='https:'?'wss:':'ws:'}//${location.host}/ws`);
+ socket.onopen=()=>{$('network').textContent='● 실시간 연결됨';$('network').style.color='#60e2be'};
+ socket.onmessage=e=>{try{latest=JSON.parse(e.data);updateControls();if(!paused)queue(latest)}catch(err){console.error('Invalid dashboard message',err)}};
+ socket.onerror=()=>socket.close();
+ socket.onclose=()=>{$('network').textContent='● 연결 끊김 · 재연결 중';$('network').style.color='#f4c576';if(!stopped)retry=setTimeout(connect,1500)};
+}
+window.addEventListener('pagehide',()=>{stopped=true;clearTimeout(retry);if(socket)socket.close()});
+window.addEventListener('pageshow',()=>{if(stopped){stopped=false;connect()}});
+connect();
+setInterval(updateElapsed,1000);
+</script></html>

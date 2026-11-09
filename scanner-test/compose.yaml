@@ -1,0 +1,7 @@
+services:
+  scanner:
+    build: .
+    ports:
+      - "7001:7001"
+      - "8080:8080"
+    command: ["-tcp", ":7001", "-web", ":8080", "-format", "auto"]
