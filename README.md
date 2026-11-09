@@ -1,6 +1,17 @@
 # nowwin-beacon-gateway
 
-현승코리아 G-1 게이트웨이의 비콘 수신을 확인하는 Go 테스트 서버입니다. 기존 운영 코드(`main.go`)와 분리해 실행합니다.
+현승코리아 G-1 비콘 수신 테스트 서버 · Go
+
+<br />
+
+## 실행 환경
+
+- Docker: 29.9.3
+- Docker Compose: v5.7.0 (`docker compose`)
+- docker-compose: v2.9.0 (`docker-compose`)
+- Go: 1.23.12 (`golang:1.23-alpine` 빌드 이미지)
+
+<br />
 
 ## 실행
 
@@ -12,12 +23,20 @@ docker-compose up -d --build
 - 대시보드: `http://서버IP:8080`
 - TCP 수신: `서버IP:7001`
 - 중지: `docker-compose down`
-- 코드 수정 후 같은 실행 명령으로 다시 빌드합니다.
+
+<br />
 
 ## 비콘원문파서
 
-- BINARY-LONG
-- CSV 기반 텍스트 프레임 (time,beacon_mac,rssi,unused,scanner_mac)
+- BINARY-LONG:
+
+    `bb01000000aaac233fc2...`
+
+- BINARY-CSV: 
+
+    `time,beacon_mac,rssi,unused,scanner_mac`
+
+<br />
 
 ## 게이트웨이 설정
 
@@ -31,18 +50,22 @@ docker-compose up -d --build
 | MAC filter | `^C30000.*\|^00C0B1.*` |
 | MCV3 advertising packets only | 체크 해제 |
 
+<br />
+
 ## 주요 기능
 
 - TCP 바이너리 및 CSV 기반 텍스트 프레임 자동 판별, 독립된 파서 패키지
 - WebSocket 기반 실시간 대시보드, 모바일 화면 지원
 - 비콘 목록 및 MAC 선택 필터
-- 최초 수신 순서 유지, 마지막 수신 후 경과 시간 표시, 30초 미수신 시 목록에서 제외
-- 패킷별 요약표와 원문 hex 표시, 아래로 스크롤하면 자동 일시정지
-- 최근 이벤트 200건을 메모리에만 보관하며 서버 재시작 시 초기화
+- 최초 수신 순서 유지 · 수신 경과 시간 표시 · 30초 미수신 항목 제외
+- 패킷별 요약표·원문 hex · 로그 스크롤 시 자동 일시정지
+- 최근 이벤트 200건 메모리 보관 · 재시작 시 초기화
+
+<br />
 
 ## 개발 및 테스트
 
-Go 1.22 이상과 Python 3이 필요합니다.
+필수: Go 1.22+ · Python 3
 
 ```bash
 cd scanner-test
@@ -51,4 +74,9 @@ make test                        # Go 테스트 및 race 검사
 python3 scripts/send_sample.py   # 합성 데이터 전송
 ```
 
-파서는 `scanner-test/parser/`, 서버와 대시보드는 `scanner-test/cmd/server/`에 있습니다.
+<br />
+
+## 구조
+
+- 파서: `scanner-test/parser/`
+- 서버·대시보드: `scanner-test/cmd/server/`
