@@ -6,8 +6,8 @@
 
 ## 실행 환경
 
+- OS: Ubuntu 22.04.5 LTS (x86_64)
 - Docker: 29.9.3
-- Docker Compose: v5.7.0 (`docker compose`)
 - docker-compose: v2.9.0 (`docker-compose`)
 - Go: 1.23.12 (`golang:1.23-alpine` 빌드 이미지)
 
